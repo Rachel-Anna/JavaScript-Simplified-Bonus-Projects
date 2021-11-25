@@ -91,9 +91,16 @@ globalEventListener("mousedown", "[data-draggable]", (e) => {
   console.log(e.target);
 });
 
-//add an event listener to the trash can. on mouse over
-//if th event listener is triggered and the coordinates of the bin overlap with those of a
-//task then add the onhover class to the bin
+/* 
+Plan
+If the user clicks on a task and drags it to the bin, make the bin hover
+Add a mouseup eventlistener. If the task coordinates overlap the bins coordinates then delete the task
+If the coordiantes dont overlap. 
+
+
+
+
+*/
 
 // 1. add a button that allows a user to download or upload their tasks
 //2. add a button to upload the user's tasks
