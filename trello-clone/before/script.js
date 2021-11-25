@@ -1,4 +1,4 @@
-import setupDragAndDrop from "./dragAndDrop";
+import setupDragAndDrop, { getDropZone } from "./dragAndDrop";
 import { v4 as uuidV4 } from "uuid";
 import { globalEventListener } from "./utils.js";
 
@@ -75,27 +75,56 @@ function createTaskElement(task) {
   return element;
 }
 
-const deleteTask = (e) => {
-  trash.classList.add("onhover");
-  trash.addEventListener(
-    "mouseleave",
-    () => {
-      trash.classList.remove("onhover");
-    },
-    { once: true }
-  );
-  saveLanes(lanes);
-};
-
 globalEventListener("mousedown", "[data-draggable]", (e) => {
-  console.log(e.target);
+  const originalDropZone = getDropZone(e.target);
+  const trash = document.querySelector("[data-trash]");
+  const task = e.target;
+
+  const hoverEffect = () => {
+    trash.classList.add("onhover");
+    trash.addEventListener(
+      "mouseup",
+      () => {
+        task.remove();
+        removeItemFromLane(task);
+      },
+      { once: true }
+    );
+    trash.addEventListener("mouseleave", () => {
+      trash.removeEventListener("mouseover", hoverEffect);
+      trash.classList.remove("onhover");
+    });
+  };
+
+  const deleteTaskCheck = (e) => {
+    trash.addEventListener("mouseover", hoverEffect);
+  };
+  document.addEventListener("mousemove", deleteTaskCheck);
+  document.addEventListener("mouseup", () => {
+    document.removeEventListener("mousemove", deleteTaskCheck);
+  });
 });
+
+function removeItemFromLane(task) {
+  const currentLanes = JSON.parse(localStorage.getItem(LANES_STORAGE_KEY));
+  const taskiD = task.id;
+  const updatedLanes = Object.entries(currentLanes).forEach((lane) => {
+    lane.forEach((task) => {
+      if (task.id === taskiD) {
+        lane.splice(lane.indexOf(task), 1);
+      }
+    });
+  });
+  console.log(updatedLanes); //trying to delete the task from the array by removing it from local storage
+}
 
 /* 
 Plan
 If the user clicks on a task and drags it to the bin, make the bin hover
+
 Add a mouseup eventlistener. If the task coordinates overlap the bins coordinates then delete the task
-If the coordiantes dont overlap. 
+If the coordiantes dont overlap. check if the task is in a dropzone. if it's in the dropzone put the task there
+If the task isn't over the bin or a dropzone, put it back to the original dropzone 
 
 
 

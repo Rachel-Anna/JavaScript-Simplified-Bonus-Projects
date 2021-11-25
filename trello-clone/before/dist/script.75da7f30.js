@@ -137,6 +137,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = setup;
+exports.getDropZone = getDropZone;
 
 var _utils = require("./utils");
 
@@ -218,7 +219,9 @@ function positionClone(itemClone, mousePosition, offset) {
 }
 
 function getDropZone(element) {
-  if (element.matches("[data-drop-zone]")) {
+  if (element.matches("[data-trash]")) {
+    return element;
+  } else if (element.matches("[data-drop-zone]")) {
     return element;
   } else {
     return element.closest("[data-drop-zone]");
@@ -1070,13 +1073,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 },{"./v1.js":"node_modules/uuid/dist/esm-browser/v1.js","./v3.js":"node_modules/uuid/dist/esm-browser/v3.js","./v4.js":"node_modules/uuid/dist/esm-browser/v4.js","./v5.js":"node_modules/uuid/dist/esm-browser/v5.js","./nil.js":"node_modules/uuid/dist/esm-browser/nil.js","./version.js":"node_modules/uuid/dist/esm-browser/version.js","./validate.js":"node_modules/uuid/dist/esm-browser/validate.js","./stringify.js":"node_modules/uuid/dist/esm-browser/stringify.js","./parse.js":"node_modules/uuid/dist/esm-browser/parse.js"}],"script.js":[function(require,module,exports) {
 "use strict";
 
-var _dragAndDrop = _interopRequireDefault(require("./dragAndDrop"));
+var _dragAndDrop = _interopRequireWildcard(require("./dragAndDrop"));
 
 var _uuid = require("uuid");
 
 var _utils = require("./utils.js");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 //Setting up the drag and drop
 (0, _dragAndDrop.default)(onDragComplete);
@@ -1156,21 +1161,59 @@ function createTaskElement(task) {
   return element;
 }
 
-var deleteTask = function deleteTask(e) {
-  trash.classList.add("onhover");
-  trash.addEventListener("mouseleave", function () {
-    trash.classList.remove("onhover");
-  }, {
-    once: true
-  });
-  saveLanes(lanes);
-};
-
 (0, _utils.globalEventListener)("mousedown", "[data-draggable]", function (e) {
-  console.log(e.target);
-}); //add an event listener to the trash can. on mouse over
-//if th event listener is triggered and the coordinates of the bin overlap with those of a
-//task then add the onhover class to the bin
+  var originalDropZone = (0, _dragAndDrop.getDropZone)(e.target);
+  var trash = document.querySelector("[data-trash]");
+  var task = e.target;
+
+  var hoverEffect = function hoverEffect() {
+    trash.classList.add("onhover");
+    trash.addEventListener("mouseup", function () {
+      task.remove();
+      removeItemFromLane(task);
+    }, {
+      once: true
+    });
+    trash.addEventListener("mouseleave", function () {
+      trash.removeEventListener("mouseover", hoverEffect);
+      trash.classList.remove("onhover");
+    });
+  };
+
+  var deleteTaskCheck = function deleteTaskCheck(e) {
+    trash.addEventListener("mouseover", hoverEffect);
+  };
+
+  document.addEventListener("mousemove", deleteTaskCheck);
+  document.addEventListener("mouseup", function () {
+    document.removeEventListener("mousemove", deleteTaskCheck);
+  });
+});
+
+function removeItemFromLane(task) {
+  var currentLanes = JSON.parse(localStorage.getItem(LANES_STORAGE_KEY));
+  var taskiD = task.id;
+  var updatedLanes = Object.entries(currentLanes).forEach(function (lane) {
+    lane.forEach(function (task) {
+      if (task.id === taskiD) {
+        lane.splice(lane.indexOf(task), 1);
+      }
+    });
+  });
+  console.log(updatedLanes); //trying to delete the task from the array by removing it from local storage
+}
+/* 
+Plan
+If the user clicks on a task and drags it to the bin, make the bin hover
+
+Add a mouseup eventlistener. If the task coordinates overlap the bins coordinates then delete the task
+If the coordiantes dont overlap. check if the task is in a dropzone. if it's in the dropzone put the task there
+If the task isn't over the bin or a dropzone, put it back to the original dropzone 
+
+
+
+
+*/
 // 1. add a button that allows a user to download or upload their tasks
 //2. add a button to upload the user's tasks
 //3. add a button that allows a user to create new lanes and drag the tasks between each laanes
@@ -1203,7 +1246,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55274" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63467" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

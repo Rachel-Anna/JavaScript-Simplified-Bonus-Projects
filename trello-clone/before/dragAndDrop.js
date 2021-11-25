@@ -86,8 +86,10 @@ function positionClone(itemClone, mousePosition, offset) {
   itemClone.style.left = `${mousePosition.clientX - offset.x}px`;
 }
 
-function getDropZone(element) {
-  if (element.matches("[data-drop-zone]")) {
+export function getDropZone(element) {
+  if (element.matches("[data-trash]")) {
+    return element;
+  } else if (element.matches("[data-drop-zone]")) {
     return element;
   } else {
     return element.closest("[data-drop-zone]");
