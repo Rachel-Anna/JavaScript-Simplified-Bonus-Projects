@@ -118,5 +118,15 @@ body {
   opacity: 0.25;
 }
 
+.btn-container {
+  margin: 3em auto;
+  min-width: 8em;
+}
+
+.up-download {
+  width: fit-content;
+  padding: 1em;
+}
+
 
 /*# sourceMappingURL=/styles.8986bff4.css.map */

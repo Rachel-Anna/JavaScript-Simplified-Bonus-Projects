@@ -48,7 +48,7 @@ function loadLanes() {
   return JSON.parse(lanesJson) || DEFAULT_LANES;
 }
 
-function saveLanes() {
+function saveLanes(lanes) {
   localStorage.setItem(LANES_STORAGE_KEY, JSON.stringify(lanes));
 }
 
@@ -75,8 +75,9 @@ function createTaskElement(task) {
   return element;
 }
 
+//makes trash can bobble when you drag a task over it
 globalEventListener("mousedown", "[data-draggable]", (e) => {
-  const originalDropZone = getDropZone(e.target);
+  const originalLane = getDropZone(e.target);
   const trash = document.querySelector("[data-trash]");
   const task = e.target;
 
@@ -86,7 +87,8 @@ globalEventListener("mousedown", "[data-draggable]", (e) => {
       "mouseup",
       () => {
         task.remove();
-        removeItemFromLane(task);
+        console.log(task);
+        removeItemFromLane(task, originalLane.dataset.laneId);
       },
       { once: true }
     );
@@ -105,27 +107,21 @@ globalEventListener("mousedown", "[data-draggable]", (e) => {
   });
 });
 
-function removeItemFromLane(task) {
-  const currentLanes = JSON.parse(localStorage.getItem(LANES_STORAGE_KEY));
-  const taskiD = task.id;
-  const updatedLanes = Object.entries(currentLanes).forEach((lane) => {
-    lane.forEach((task) => {
-      if (task.id === taskiD) {
-        lane.splice(lane.indexOf(task), 1);
-      }
-    });
+function removeItemFromLane(task, taskLane) {
+  Object.entries(lanes).forEach((lane) => {
+    if (lane[0] === taskLane) {
+      lane[1].forEach((t) => {
+        if (t.id === task.id) {
+          lane[1].splice(lane.indexOf(t), 1);
+          saveLanes(lanes);
+        }
+      });
+    }
   });
-  console.log(updatedLanes); //trying to delete the task from the array by removing it from local storage
 }
 
 /* 
 Plan
-If the user clicks on a task and drags it to the bin, make the bin hover
-
-Add a mouseup eventlistener. If the task coordinates overlap the bins coordinates then delete the task
-If the coordiantes dont overlap. check if the task is in a dropzone. if it's in the dropzone put the task there
-If the task isn't over the bin or a dropzone, put it back to the original dropzone 
-
 
 
 
@@ -134,4 +130,3 @@ If the task isn't over the bin or a dropzone, put it back to the original dropzo
 // 1. add a button that allows a user to download or upload their tasks
 //2. add a button to upload the user's tasks
 //3. add a button that allows a user to create new lanes and drag the tasks between each laanes
-//4. button to remove tasks

@@ -117,3 +117,13 @@ body {
   background-color: black;
   opacity: 0.25;
 }
+
+.btn-container {
+  margin: 3em auto;
+  min-width: 8em;
+}
+
+.up-download {
+  width: fit-content;
+  padding: 1em;
+}

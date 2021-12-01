@@ -1136,7 +1136,7 @@ function loadLanes() {
   return JSON.parse(lanesJson) || DEFAULT_LANES;
 }
 
-function saveLanes() {
+function saveLanes(lanes) {
   localStorage.setItem(LANES_STORAGE_KEY, JSON.stringify(lanes));
 }
 
@@ -1159,10 +1159,11 @@ function createTaskElement(task) {
   element.classList.add("task");
   element.dataset.draggable = true;
   return element;
-}
+} //makes trash can bobble when you drag a task over it
+
 
 (0, _utils.globalEventListener)("mousedown", "[data-draggable]", function (e) {
-  var originalDropZone = (0, _dragAndDrop.getDropZone)(e.target);
+  var originalLane = (0, _dragAndDrop.getDropZone)(e.target);
   var trash = document.querySelector("[data-trash]");
   var task = e.target;
 
@@ -1170,7 +1171,8 @@ function createTaskElement(task) {
     trash.classList.add("onhover");
     trash.addEventListener("mouseup", function () {
       task.remove();
-      removeItemFromLane(task);
+      console.log(task);
+      removeItemFromLane(task, originalLane.dataset.laneId);
     }, {
       once: true
     });
@@ -1190,26 +1192,20 @@ function createTaskElement(task) {
   });
 });
 
-function removeItemFromLane(task) {
-  var currentLanes = JSON.parse(localStorage.getItem(LANES_STORAGE_KEY));
-  var taskiD = task.id;
-  var updatedLanes = Object.entries(currentLanes).forEach(function (lane) {
-    lane.forEach(function (task) {
-      if (task.id === taskiD) {
-        lane.splice(lane.indexOf(task), 1);
-      }
-    });
+function removeItemFromLane(task, taskLane) {
+  Object.entries(lanes).forEach(function (lane) {
+    if (lane[0] === taskLane) {
+      lane[1].forEach(function (t) {
+        if (t.id === task.id) {
+          lane[1].splice(lane.indexOf(t), 1);
+          saveLanes(lanes);
+        }
+      });
+    }
   });
-  console.log(updatedLanes); //trying to delete the task from the array by removing it from local storage
 }
 /* 
 Plan
-If the user clicks on a task and drags it to the bin, make the bin hover
-
-Add a mouseup eventlistener. If the task coordinates overlap the bins coordinates then delete the task
-If the coordiantes dont overlap. check if the task is in a dropzone. if it's in the dropzone put the task there
-If the task isn't over the bin or a dropzone, put it back to the original dropzone 
-
 
 
 
@@ -1217,7 +1213,6 @@ If the task isn't over the bin or a dropzone, put it back to the original dropzo
 // 1. add a button that allows a user to download or upload their tasks
 //2. add a button to upload the user's tasks
 //3. add a button that allows a user to create new lanes and drag the tasks between each laanes
-//4. button to remove tasks
 },{"./dragAndDrop":"dragAndDrop.js","uuid":"node_modules/uuid/dist/esm-browser/index.js","./utils.js":"utils.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -1246,7 +1241,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63467" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51833" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
