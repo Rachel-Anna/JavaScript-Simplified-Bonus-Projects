@@ -77,9 +77,9 @@ function createTaskElement(task) {
 
 //makes trash can bobble when you drag a task over it
 globalEventListener("mousedown", "[data-draggable]", (e) => {
-  const originalLane = getDropZone(e.target);
-  const trash = document.querySelector("[data-trash]");
   const task = e.target;
+  const originalLane = getDropZone(task);
+  const trash = document.querySelector("[data-trash]");
 
   const hoverEffect = () => {
     trash.classList.add("onhover");
@@ -87,20 +87,18 @@ globalEventListener("mousedown", "[data-draggable]", (e) => {
       "mouseup",
       () => {
         task.remove();
-        console.log(task);
         removeItemFromLane(task, originalLane.dataset.laneId);
+        trash.removeEventListener("mouseover", hoverEffect);
+        trash.classList.remove("onhover");
       },
       { once: true }
     );
-    trash.addEventListener("mouseleave", () => {
-      trash.removeEventListener("mouseover", hoverEffect);
-      trash.classList.remove("onhover");
-    });
   };
 
   const deleteTaskCheck = (e) => {
     trash.addEventListener("mouseover", hoverEffect);
   };
+
   document.addEventListener("mousemove", deleteTaskCheck);
   document.addEventListener("mouseup", () => {
     document.removeEventListener("mousemove", deleteTaskCheck);
@@ -120,13 +118,30 @@ function removeItemFromLane(task, taskLane) {
   });
 }
 
-/* 
-Plan
+function downloadData() {
+  const dataStr = localStorage.getItem(LANES_STORAGE_KEY);
+  let dataUri = `data:application/json;charset=utf-8, ${encodeURIComponent(
+    dataStr
+  )}`; //ask Kyle
+  let exportFileDefaultName = "data.json";
 
+  let linkElement = document.createElement("a");
+  linkElement.setAttribute("href", dataUri);
+  linkElement.setAttribute("download", exportFileDefaultName);
+  linkElement.click();
+}
 
-
-*/
+const downloadBtn = document.querySelector("[data-download]");
+downloadBtn.addEventListener("click", downloadData);
 
 // 1. add a button that allows a user to download or upload their tasks
 //2. add a button to upload the user's tasks
 //3. add a button that allows a user to create new lanes and drag the tasks between each laanes
+
+/*
+anki cards:
+-what are URI, URL, URN?
+-what is the download attribute in html?
+-how can you export a json file using js (and URIs)?
+
+*/

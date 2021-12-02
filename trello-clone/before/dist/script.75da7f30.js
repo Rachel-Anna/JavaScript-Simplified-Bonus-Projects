@@ -1163,22 +1163,19 @@ function createTaskElement(task) {
 
 
 (0, _utils.globalEventListener)("mousedown", "[data-draggable]", function (e) {
-  var originalLane = (0, _dragAndDrop.getDropZone)(e.target);
-  var trash = document.querySelector("[data-trash]");
   var task = e.target;
+  var originalLane = (0, _dragAndDrop.getDropZone)(task);
+  var trash = document.querySelector("[data-trash]");
 
   var hoverEffect = function hoverEffect() {
     trash.classList.add("onhover");
     trash.addEventListener("mouseup", function () {
       task.remove();
-      console.log(task);
       removeItemFromLane(task, originalLane.dataset.laneId);
-    }, {
-      once: true
-    });
-    trash.addEventListener("mouseleave", function () {
       trash.removeEventListener("mouseover", hoverEffect);
       trash.classList.remove("onhover");
+    }, {
+      once: true
     });
   };
 
@@ -1204,15 +1201,30 @@ function removeItemFromLane(task, taskLane) {
     }
   });
 }
-/* 
-Plan
 
+function downloadData() {
+  var dataStr = localStorage.getItem(LANES_STORAGE_KEY);
+  var dataUri = "data:application/json;charset=utf-8, ".concat(encodeURIComponent(dataStr)); //ask Kyle
 
+  var exportFileDefaultName = "data.json";
+  var linkElement = document.createElement("a");
+  linkElement.setAttribute("href", dataUri);
+  linkElement.setAttribute("download", exportFileDefaultName);
+  linkElement.click();
+}
 
-*/
-// 1. add a button that allows a user to download or upload their tasks
+var downloadBtn = document.querySelector("[data-download]");
+downloadBtn.addEventListener("click", downloadData); // 1. add a button that allows a user to download or upload their tasks
 //2. add a button to upload the user's tasks
 //3. add a button that allows a user to create new lanes and drag the tasks between each laanes
+
+/*
+anki cards:
+-what are URI, URL, URN?
+-what is the download attribute in html?
+-how can you export a json file using js (and URIs)?
+
+*/
 },{"./dragAndDrop":"dragAndDrop.js","uuid":"node_modules/uuid/dist/esm-browser/index.js","./utils.js":"utils.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -1241,7 +1253,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51833" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59771" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
