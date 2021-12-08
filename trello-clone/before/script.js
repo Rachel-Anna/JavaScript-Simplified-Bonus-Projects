@@ -92,6 +92,13 @@ globalEventListener("mousedown", "[data-draggable]", (e) => {
   const hoverEffect = () => {
     trash.classList.add("onhover");
     trash.addEventListener(
+      "mouseleave",
+      () => {
+        trash.classList.remove("onhover");
+      },
+      { once: true }
+    );
+    trash.addEventListener(
       "mouseup",
       () => {
         task.remove();
@@ -103,13 +110,8 @@ globalEventListener("mousedown", "[data-draggable]", (e) => {
     );
   };
 
-  const deleteTaskCheck = (e) => {
+  document.addEventListener("mousemove", () => {
     trash.addEventListener("mouseover", hoverEffect);
-  };
-
-  document.addEventListener("mousemove", deleteTaskCheck);
-  document.addEventListener("mouseup", () => {
-    document.removeEventListener("mousemove", deleteTaskCheck);
   });
 });
 
@@ -209,3 +211,6 @@ globalEventListener("click", "[data-delete-lane]", (e) => {
     }
   });
 });
+
+//if the user uploads JSON data, use that to replace whats in local storage
+//save what the user uploads so it persists

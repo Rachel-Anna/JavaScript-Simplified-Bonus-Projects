@@ -1175,6 +1175,11 @@ function createTaskElement(task) {
 
   var hoverEffect = function hoverEffect() {
     trash.classList.add("onhover");
+    trash.addEventListener("mouseleave", function () {
+      trash.classList.remove("onhover");
+    }, {
+      once: true
+    });
     trash.addEventListener("mouseup", function () {
       task.remove();
       removeItemFromLane(task, originalLane.dataset.laneId);
@@ -1185,13 +1190,8 @@ function createTaskElement(task) {
     });
   };
 
-  var deleteTaskCheck = function deleteTaskCheck(e) {
+  document.addEventListener("mousemove", function () {
     trash.addEventListener("mouseover", hoverEffect);
-  };
-
-  document.addEventListener("mousemove", deleteTaskCheck);
-  document.addEventListener("mouseup", function () {
-    document.removeEventListener("mousemove", deleteTaskCheck);
   });
 });
 
@@ -1291,7 +1291,8 @@ function renderLanes(lanes) {
       saveLanes(lanes);
     }
   });
-});
+}); //if the user uploads JSON data, use that to replace whats in local storage
+//save what the user uploads so it persists
 },{"./dragAndDrop":"dragAndDrop.js","uuid":"node_modules/uuid/dist/esm-browser/index.js","./utils.js":"utils.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -1320,7 +1321,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64051" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52636" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
