@@ -1096,10 +1096,13 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
   };
   var laneElement = e.target.closest(".lane").querySelector("[data-lane-id]");
   lanes[laneElement.dataset.laneId].push(task);
-  var taskElement = createTaskElement(task);
-  laneElement.append(taskElement);
+  var taskElement = createTaskElement(task); //laneElement.append(taskElement);
+
   taskInput.value = "";
   saveLanes(lanes);
+  resetLanes();
+  renderLanes(lanes);
+  renderTasks(lanes);
 });
 
 function onDragComplete(e) {
@@ -1253,14 +1256,18 @@ addBtn.addEventListener("submit", function (e) {
   var laneName = inputField.value;
   lanes[laneName] = [];
   saveLanes(lanes);
+  resetLanes();
+  renderLanes(lanes);
+  renderTasks(lanes);
+  inputField.value = "";
+});
+
+function resetLanes() {
   var laneElements = Array.from(document.querySelectorAll(".lane"));
   laneElements.forEach(function (lane) {
     lane.remove();
   });
-  renderLanes(lanes); //renderTasks(newLanes);
-
-  inputField.value = "";
-});
+}
 
 function renderLanes(lanes) {
   Object.entries(lanes).forEach(function (lane) {
@@ -1280,10 +1287,8 @@ function renderLanes(lanes) {
   lane.remove();
   Object.entries(lanes).forEach(function (lane) {
     if (lane[0] === id) {
-      console.log(lane[0]);
       delete lanes[lane[0]];
-      saveLanes(lanes); //lanes[0].splice(lane.indexOf(lane[0]), 1);
-      //saveLanes(lanes);
+      saveLanes(lanes);
     }
   });
 });

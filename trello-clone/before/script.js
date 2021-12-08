@@ -10,14 +10,16 @@ globalEventListener("submit", "[data-task-form]", (e) => {
   const taskInput = e.target.querySelector("[data-task-input]");
   const taskText = taskInput.value;
   if (taskText === "") return;
-
   const task = { id: uuidV4(), text: taskText };
   const laneElement = e.target.closest(".lane").querySelector("[data-lane-id]");
   lanes[laneElement.dataset.laneId].push(task);
   const taskElement = createTaskElement(task);
-  laneElement.append(taskElement);
+  //laneElement.append(taskElement);
   taskInput.value = "";
   saveLanes(lanes);
+  resetLanes();
+  renderLanes(lanes);
+  renderTasks(lanes);
 });
 
 function onDragComplete(e) {
@@ -171,16 +173,18 @@ addBtn.addEventListener("submit", (e) => {
   let laneName = inputField.value;
   lanes[laneName] = [];
   saveLanes(lanes);
+  resetLanes();
+  renderLanes(lanes);
+  renderTasks(lanes);
+  inputField.value = "";
+});
 
+function resetLanes() {
   const laneElements = Array.from(document.querySelectorAll(".lane"));
-
   laneElements.forEach((lane) => {
     lane.remove();
   });
-  renderLanes(lanes);
-  //renderTasks(newLanes);
-  inputField.value = "";
-});
+}
 
 function renderLanes(lanes) {
   Object.entries(lanes).forEach((lane) => {
@@ -197,15 +201,11 @@ function renderLanes(lanes) {
 globalEventListener("click", "[data-delete-lane]", (e) => {
   let lane = e.target.closest(".lane");
   let id = lane.querySelector("[data-lane-id]").dataset.laneId;
-
   lane.remove();
   Object.entries(lanes).forEach((lane) => {
     if (lane[0] === id) {
-      console.log(lane[0]);
       delete lanes[lane[0]];
       saveLanes(lanes);
-      //lanes[0].splice(lane.indexOf(lane[0]), 1);
-      //saveLanes(lanes);
     }
   });
 });
