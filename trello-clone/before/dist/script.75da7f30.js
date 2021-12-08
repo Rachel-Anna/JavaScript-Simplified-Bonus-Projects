@@ -1128,7 +1128,10 @@ var DEFAULT_LANES = {
   }],
   done: []
 };
+var container = document.querySelector("[data-lane-container]");
+var addBtn = document.querySelector("[data-add-new-lane]");
 var lanes = loadLanes();
+renderLanes(lanes);
 renderTasks(lanes);
 
 function loadLanes() {
@@ -1137,10 +1140,10 @@ function loadLanes() {
 }
 
 function saveLanes(lanes) {
-  localStorage.setItem(LANES_STORAGE_KEY, JSON.stringify(lanes));
+  localStorage.setItem(LANES_STORAGE_KEY, typeof lanes === "string" ? lanes : JSON.stringify(lanes));
 }
 
-function renderTasks() {
+function renderTasks(lanes) {
   Object.entries(lanes).forEach(function (obj) {
     var laneId = obj[0];
     var tasks = obj[1];
@@ -1202,10 +1205,12 @@ function removeItemFromLane(task, taskLane) {
   });
 }
 
+var downloadBtn = document.querySelector("[data-download]");
+downloadBtn.addEventListener("click", downloadData);
+
 function downloadData() {
   var dataStr = localStorage.getItem(LANES_STORAGE_KEY);
-  var dataUri = "data:application/json;charset=utf-8, ".concat(encodeURIComponent(dataStr)); //ask Kyle
-
+  var dataUri = "data:application/json;charset=utf-8, ".concat(encodeURIComponent(dataStr));
   var exportFileDefaultName = "data.json";
   var linkElement = document.createElement("a");
   linkElement.setAttribute("href", dataUri);
@@ -1213,18 +1218,72 @@ function downloadData() {
   linkElement.click();
 }
 
-var downloadBtn = document.querySelector("[data-download]");
-downloadBtn.addEventListener("click", downloadData); // 1. add a button that allows a user to download or upload their tasks
-//2. add a button to upload the user's tasks
-//3. add a button that allows a user to create new lanes and drag the tasks between each laanes
+var dataInput = document.getElementById("import-input");
+dataInput.addEventListener("change", readUserData);
 
-/*
-anki cards:
--what are URI, URL, URN?
--what is the download attribute in html?
--how can you export a json file using js (and URIs)?
+function readUserData(e) {
+  var userData = e.target.files[0]; // Filelist object
 
-*/
+  var reader = new FileReader();
+  reader.readAsText(userData); //parse the json of the file that the user selected
+
+  reader.onload = function () {
+    //when that's done....edit lanes
+    saveLanes(reader.result); //saving to local storage
+
+    var lanes = loadLanes(); //setting the lanes based on local storage
+
+    removePreviousTasks(); //removes old tasks
+
+    renderTasks(lanes); //rerenders using new tasks
+  };
+}
+
+function removePreviousTasks() {
+  var lanes = Array.from(document.querySelectorAll("[data-lane-id]"));
+  lanes.forEach(function (lane) {
+    lane.innerHTML = "";
+  });
+} //3. add a button that allows a user to create new lanes and drag the tasks between each laanes
+
+
+addBtn.addEventListener("submit", function (e) {
+  e.preventDefault();
+  var inputField = addBtn.querySelector("#user-lane");
+  var laneName = inputField.value;
+  lanes[laneName] = [];
+  saveLanes(lanes);
+  renderLanes(lanes); //renderTasks(newLanes);
+
+  inputField.value = "";
+});
+
+function renderLanes(lanes) {
+  Object.entries(lanes).forEach(function (lane) {
+    var template = document.querySelector("[data-lane-template]");
+    var templateClone = template.content.cloneNode(true);
+    var laneId = templateClone.querySelector("[data-lane-id]");
+    laneId.dataset.dataLaneId = lane[0];
+    var header = templateClone.querySelector(".header");
+    header.innerText = lane[0];
+    container.insertBefore(templateClone, addBtn);
+  });
+}
+
+{
+  /* <div class="lane">
+          <div class="header">Backlog</div>
+          <div class="tasks" data-drop-zone data-lane-id="backlog"></div>
+          <form data-task-form>
+            <input
+              data-task-input
+              class="task-input"
+              type="text"
+              placeholder="Task Name"
+            />
+          </form>
+        </div> */
+}
 },{"./dragAndDrop":"dragAndDrop.js","uuid":"node_modules/uuid/dist/esm-browser/index.js","./utils.js":"utils.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -1253,7 +1312,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59771" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64235" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

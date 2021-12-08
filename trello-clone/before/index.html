@@ -10,45 +10,15 @@
   </head>
   <body>
     <div class="container">
-      <div class="lanes">
-        <div class="lane">
-          <div class="header">Backlog</div>
-          <div class="tasks" data-drop-zone data-lane-id="backlog"></div>
-          <form data-task-form>
-            <input
-              data-task-input
-              class="task-input"
-              type="text"
-              placeholder="Task Name"
-            />
-          </form>
-        </div>
-        <div class="lane">
-          <div class="header">Doing</div>
-          <div class="tasks" data-drop-zone data-lane-id="doing"></div>
-          <form data-task-form>
-            <input
-              data-task-input
-              class="task-input"
-              type="text"
-              placeholder="Task Name"
-            />
-          </form>
-        </div>
-        <div class="lane">
-          <div class="header">Done</div>
-          <div class="tasks" data-drop-zone data-lane-id="done">
-            <!-- <div class="task" data-draggable>Plan Trello Clone Video</div> -->
-          </div>
-          <form data-task-form>
-            <input
-              data-task-input
-              class="task-input"
-              type="text"
-              placeholder="Task Name"
-            />
-          </form>
-        </div>
+      <div class="lanes" data-lane-container>
+        <form class="add" data-add-new-lane>
+          <input
+            type="text"
+            id="user-lane"
+            class="user-lane-name-input"
+            placeholder="Enter name of list"
+          />
+        </form>
       </div>
       <img
         class="trash"
@@ -56,9 +26,32 @@
         src="https://img.icons8.com/external-tulpahn-flat-tulpahn/64/000000/external-bin-mobile-user-interface-tulpahn-flat-tulpahn.png"
       />
       <div class="btn-container">
-        <button class="up-download" data-upload>Upload Tasks</button>
+        <input
+          type="file"
+          name="import-input"
+          accept="application/json"
+          id="import-input"
+          hidden
+        />
+        <label for="import-input" class="up-download">Upload Tasks</label>
+
         <button class="up-download" data-download>Download Tasks</button>
       </div>
     </div>
+
+    <template data-lane-template>
+      <div class="lane">
+        <div class="header">Doing</div>
+        <div class="tasks" data-drop-zone data-lane-id="doing"></div>
+        <form data-task-form>
+          <input
+            data-task-input
+            class="task-input"
+            type="text"
+            placeholder="Task Name"
+          />
+        </form>
+      </div>
+    </template>
   </body>
 </html>

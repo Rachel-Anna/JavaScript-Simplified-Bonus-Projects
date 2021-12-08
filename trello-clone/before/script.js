@@ -40,7 +40,11 @@ const DEFAULT_LANES = {
   done: [],
 };
 
+const container = document.querySelector("[data-lane-container]");
+const addBtn = document.querySelector("[data-add-new-lane]");
+
 const lanes = loadLanes();
+renderLanes(lanes);
 renderTasks(lanes);
 
 function loadLanes() {
@@ -49,17 +53,19 @@ function loadLanes() {
 }
 
 function saveLanes(lanes) {
-  localStorage.setItem(LANES_STORAGE_KEY, JSON.stringify(lanes));
+  localStorage.setItem(
+    LANES_STORAGE_KEY,
+    typeof lanes === "string" ? lanes : JSON.stringify(lanes)
+  );
 }
 
-function renderTasks() {
+function renderTasks(lanes) {
   Object.entries(lanes).forEach((obj) => {
     const laneId = obj[0];
     const tasks = obj[1];
     const lane = document.querySelector(`[data-lane-id="${laneId}"]`);
     tasks.forEach((task) => {
       const taskElement = createTaskElement(task);
-
       lane.append(taskElement);
     });
   });
@@ -118,11 +124,14 @@ function removeItemFromLane(task, taskLane) {
   });
 }
 
+const downloadBtn = document.querySelector("[data-download]");
+downloadBtn.addEventListener("click", downloadData);
+
 function downloadData() {
   const dataStr = localStorage.getItem(LANES_STORAGE_KEY);
   let dataUri = `data:application/json;charset=utf-8, ${encodeURIComponent(
     dataStr
-  )}`; //ask Kyle
+  )}`;
   let exportFileDefaultName = "data.json";
 
   let linkElement = document.createElement("a");
@@ -131,17 +140,65 @@ function downloadData() {
   linkElement.click();
 }
 
-const downloadBtn = document.querySelector("[data-download]");
-downloadBtn.addEventListener("click", downloadData);
+const dataInput = document.getElementById("import-input");
+dataInput.addEventListener("change", readUserData);
 
-// 1. add a button that allows a user to download or upload their tasks
-//2. add a button to upload the user's tasks
+function readUserData(e) {
+  let userData = e.target.files[0]; // Filelist object
+  const reader = new FileReader();
+  reader.readAsText(userData); //parse the json of the file that the user selected
+  reader.onload = () => {
+    //when that's done....edit lanes
+    saveLanes(reader.result); //saving to local storage
+    let lanes = loadLanes(); //setting the lanes based on local storage
+    removePreviousTasks(); //removes old tasks
+    renderTasks(lanes); //rerenders using new tasks
+  };
+}
+
+function removePreviousTasks() {
+  const lanes = Array.from(document.querySelectorAll("[data-lane-id]"));
+  lanes.forEach((lane) => {
+    lane.innerHTML = "";
+  });
+}
+
 //3. add a button that allows a user to create new lanes and drag the tasks between each laanes
 
-/*
-anki cards:
--what are URI, URL, URN?
--what is the download attribute in html?
--how can you export a json file using js (and URIs)?
+addBtn.addEventListener("submit", (e) => {
+  e.preventDefault();
+  let inputField = addBtn.querySelector("#user-lane");
+  let laneName = inputField.value;
+  lanes[laneName] = [];
+  saveLanes(lanes);
+  renderLanes(lanes);
+  //renderTasks(newLanes);
+  inputField.value = "";
+});
 
-*/
+function renderLanes(lanes) {
+  Object.entries(lanes).forEach((lane) => {
+    const template = document.querySelector("[data-lane-template]");
+    const templateClone = template.content.cloneNode(true);
+    let laneId = templateClone.querySelector("[data-lane-id]");
+    laneId.dataset.dataLaneId = lane[0];
+    let header = templateClone.querySelector(".header");
+    header.innerText = lane[0];
+    container.insertBefore(templateClone, addBtn);
+  });
+}
+
+{
+  /* <div class="lane">
+          <div class="header">Backlog</div>
+          <div class="tasks" data-drop-zone data-lane-id="backlog"></div>
+          <form data-task-form>
+            <input
+              data-task-input
+              class="task-input"
+              type="text"
+              placeholder="Task Name"
+            />
+          </form>
+        </div> */
+}
