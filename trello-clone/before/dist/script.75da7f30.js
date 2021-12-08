@@ -1253,6 +1253,10 @@ addBtn.addEventListener("submit", function (e) {
   var laneName = inputField.value;
   lanes[laneName] = [];
   saveLanes(lanes);
+  var laneElements = Array.from(document.querySelectorAll(".lane"));
+  laneElements.forEach(function (lane) {
+    lane.remove();
+  });
   renderLanes(lanes); //renderTasks(newLanes);
 
   inputField.value = "";
@@ -1263,27 +1267,26 @@ function renderLanes(lanes) {
     var template = document.querySelector("[data-lane-template]");
     var templateClone = template.content.cloneNode(true);
     var laneId = templateClone.querySelector("[data-lane-id]");
-    laneId.dataset.dataLaneId = lane[0];
+    laneId.dataset.laneId = lane[0];
     var header = templateClone.querySelector(".header");
     header.innerText = lane[0];
     container.insertBefore(templateClone, addBtn);
   });
 }
 
-{
-  /* <div class="lane">
-          <div class="header">Backlog</div>
-          <div class="tasks" data-drop-zone data-lane-id="backlog"></div>
-          <form data-task-form>
-            <input
-              data-task-input
-              class="task-input"
-              type="text"
-              placeholder="Task Name"
-            />
-          </form>
-        </div> */
-}
+(0, _utils.globalEventListener)("click", "[data-delete-lane]", function (e) {
+  var lane = e.target.closest(".lane");
+  var id = lane.querySelector("[data-lane-id]").dataset.laneId;
+  lane.remove();
+  Object.entries(lanes).forEach(function (lane) {
+    if (lane[0] === id) {
+      console.log(lane[0]);
+      delete lanes[lane[0]];
+      saveLanes(lanes); //lanes[0].splice(lane.indexOf(lane[0]), 1);
+      //saveLanes(lanes);
+    }
+  });
+});
 },{"./dragAndDrop":"dragAndDrop.js","uuid":"node_modules/uuid/dist/esm-browser/index.js","./utils.js":"utils.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -1312,7 +1315,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64235" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64051" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

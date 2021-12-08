@@ -171,6 +171,12 @@ addBtn.addEventListener("submit", (e) => {
   let laneName = inputField.value;
   lanes[laneName] = [];
   saveLanes(lanes);
+
+  const laneElements = Array.from(document.querySelectorAll(".lane"));
+
+  laneElements.forEach((lane) => {
+    lane.remove();
+  });
   renderLanes(lanes);
   //renderTasks(newLanes);
   inputField.value = "";
@@ -181,24 +187,25 @@ function renderLanes(lanes) {
     const template = document.querySelector("[data-lane-template]");
     const templateClone = template.content.cloneNode(true);
     let laneId = templateClone.querySelector("[data-lane-id]");
-    laneId.dataset.dataLaneId = lane[0];
+    laneId.dataset.laneId = lane[0];
     let header = templateClone.querySelector(".header");
     header.innerText = lane[0];
     container.insertBefore(templateClone, addBtn);
   });
 }
 
-{
-  /* <div class="lane">
-          <div class="header">Backlog</div>
-          <div class="tasks" data-drop-zone data-lane-id="backlog"></div>
-          <form data-task-form>
-            <input
-              data-task-input
-              class="task-input"
-              type="text"
-              placeholder="Task Name"
-            />
-          </form>
-        </div> */
-}
+globalEventListener("click", "[data-delete-lane]", (e) => {
+  let lane = e.target.closest(".lane");
+  let id = lane.querySelector("[data-lane-id]").dataset.laneId;
+
+  lane.remove();
+  Object.entries(lanes).forEach((lane) => {
+    if (lane[0] === id) {
+      console.log(lane[0]);
+      delete lanes[lane[0]];
+      saveLanes(lanes);
+      //lanes[0].splice(lane.indexOf(lane[0]), 1);
+      //saveLanes(lanes);
+    }
+  });
+});
