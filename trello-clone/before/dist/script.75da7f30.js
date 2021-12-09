@@ -117,120 +117,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"utils.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.globalEventListener = globalEventListener;
-
-function globalEventListener(type, selector, callback) {
-  document.addEventListener(type, function (e) {
-    if (e.target.matches(selector)) callback(e);
-  });
-}
-},{}],"dragAndDrop.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = setup;
-exports.getDropZone = getDropZone;
-
-var _utils = require("./utils");
-
-function setup(onDragComplete) {
-  (0, _utils.globalEventListener)("mousedown", "[data-draggable]", function (e) {
-    var selectedItem = e.target;
-    var itemClone = selectedItem.cloneNode(true);
-    var ghost = selectedItem.cloneNode();
-    var offset = setupDragItems(selectedItem, itemClone, ghost, e);
-    positionClone(itemClone, e, offset);
-    setupDragEvents(itemClone, selectedItem, ghost, offset, onDragComplete);
-  });
-}
-
-function setupDragItems(selectedItem, itemClone, ghost, e, onDragComplete) {
-  var originalRect = selectedItem.getBoundingClientRect();
-  var offset = {
-    x: e.clientX - originalRect.left,
-    y: e.clientY - originalRect.top
-  };
-  selectedItem.classList.add("hide");
-  itemClone.style.width = "".concat(originalRect.width, "px");
-  itemClone.classList.add("dragging");
-  document.body.append(itemClone);
-  ghost.classList.add("ghost");
-  ghost.innerHTML = "";
-  ghost.style.height = "".concat(originalRect.height, "px");
-  selectedItem.parentElement.insertBefore(ghost, selectedItem);
-  return offset;
-}
-
-function setupDragEvents(itemClone, selectedItem, ghost, offset, onDragComplete) {
-  var mouseMovedFunction = function mouseMovedFunction(e) {
-    var dropZone = getDropZone(e.target);
-    positionClone(itemClone, e, offset);
-    if (dropZone == null) return;
-    var closestChild = Array.from(dropZone.children).find(function (child) {
-      var rect = child.getBoundingClientRect();
-      return e.clientY < rect.top + rect.height / 2; //if the mouse's vertical pos is higher than the middle of the task
-    });
-
-    if (closestChild != null) {
-      dropZone.insertBefore(ghost, closestChild); //inserts ghost before the closest child
-    } else {
-      dropZone.append(ghost);
-    }
-  };
-
-  document.addEventListener("mousemove", mouseMovedFunction);
-  document.addEventListener("mouseup", function () {
-    document.removeEventListener("mousemove", mouseMovedFunction);
-    var dropZone = getDropZone(ghost);
-
-    if (dropZone) {
-      onDragComplete({
-        startZone: getDropZone(selectedItem),
-        endZone: dropZone,
-        dragElement: selectedItem,
-        index: Array.from(dropZone.children).indexOf(ghost)
-      });
-      dropZone.insertBefore(selectedItem, ghost);
-    }
-
-    stopDrag(itemClone, selectedItem, ghost);
-  }, {
-    once: true
-  });
-}
-
-function stopDrag(itemClone, selectedItem, ghost) {
-  itemClone.remove();
-  selectedItem.classList.remove("hide");
-  ghost.remove();
-}
-
-function positionClone(itemClone, mousePosition, offset) {
-  itemClone.style.top = "".concat(mousePosition.clientY - offset.y, "px");
-  itemClone.style.left = "".concat(mousePosition.clientX - offset.x, "px");
-}
-
-function getDropZone(element) {
-  if (element.matches("[data-trash]")) {
-    return element;
-  } else if (element.matches("[data-drop-zone]")) {
-    return element;
-  } else {
-    return element.closest("[data-drop-zone]");
-  }
-} //The dropzone of the the selected element only changes when you move it to a new drop zone
-//while you are moving an element around with your mouse the dropzone still remains the same until you
-//release the mouse because it has not been moved from its original position in the html until the
-//dropZone.insertBefore(selectedItem, ghost); function runs
-},{"./utils":"utils.js"}],"node_modules/uuid/dist/esm-browser/rng.js":[function(require,module,exports) {
+})({"node_modules/uuid/dist/esm-browser/rng.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1070,40 +957,240 @@ var _stringify = _interopRequireDefault(require("./stringify.js"));
 var _parse = _interopRequireDefault(require("./parse.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./v1.js":"node_modules/uuid/dist/esm-browser/v1.js","./v3.js":"node_modules/uuid/dist/esm-browser/v3.js","./v4.js":"node_modules/uuid/dist/esm-browser/v4.js","./v5.js":"node_modules/uuid/dist/esm-browser/v5.js","./nil.js":"node_modules/uuid/dist/esm-browser/nil.js","./version.js":"node_modules/uuid/dist/esm-browser/version.js","./validate.js":"node_modules/uuid/dist/esm-browser/validate.js","./stringify.js":"node_modules/uuid/dist/esm-browser/stringify.js","./parse.js":"node_modules/uuid/dist/esm-browser/parse.js"}],"script.js":[function(require,module,exports) {
+},{"./v1.js":"node_modules/uuid/dist/esm-browser/v1.js","./v3.js":"node_modules/uuid/dist/esm-browser/v3.js","./v4.js":"node_modules/uuid/dist/esm-browser/v4.js","./v5.js":"node_modules/uuid/dist/esm-browser/v5.js","./nil.js":"node_modules/uuid/dist/esm-browser/nil.js","./version.js":"node_modules/uuid/dist/esm-browser/version.js","./validate.js":"node_modules/uuid/dist/esm-browser/validate.js","./stringify.js":"node_modules/uuid/dist/esm-browser/stringify.js","./parse.js":"node_modules/uuid/dist/esm-browser/parse.js"}],"utils/utils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.LANES_STORAGE_KEY = void 0;
+exports.createTaskElement = createTaskElement;
+exports.downloadData = downloadData;
+exports.globalEventListener = globalEventListener;
+exports.loadLanes = loadLanes;
+exports.removeItemFromLane = removeItemFromLane;
+exports.removeLanesFromPage = removeLanesFromPage;
+exports.renderLanes = renderLanes;
+exports.renderTasks = renderTasks;
+exports.saveLanes = saveLanes;
+
+var _uuid = require("uuid");
+
+function globalEventListener(type, selector, callback) {
+  document.addEventListener(type, function (e) {
+    if (e.target.matches(selector)) callback(e);
+  });
+}
+
+var container = document.querySelector("[data-lane-container]");
+var storagePrefix = "TRELLO_CLONE";
+var LANES_STORAGE_KEY = "".concat(storagePrefix, "-lanes");
+exports.LANES_STORAGE_KEY = LANES_STORAGE_KEY;
+var DEFAULT_LANES = {
+  backlog: [],
+  doing: [{
+    id: (0, _uuid.v4)(),
+    text: "Create your first task"
+  }],
+  done: []
+}; //Handling data
+
+function downloadData(data) {
+  var dataStr = localStorage.getItem(data);
+  var dataUri = "data:application/json;charset=utf-8, ".concat(encodeURIComponent(dataStr));
+  var exportFileDefaultName = "data.json";
+  var linkElement = document.createElement("a");
+  linkElement.setAttribute("href", dataUri);
+  linkElement.setAttribute("download", exportFileDefaultName);
+  linkElement.click();
+}
+
+function saveLanes(lanes) {
+  localStorage.setItem(LANES_STORAGE_KEY, typeof lanes === "string" ? lanes : JSON.stringify(lanes));
+}
+
+function loadLanes() {
+  var lanesJson = localStorage.getItem(LANES_STORAGE_KEY);
+  return JSON.parse(lanesJson) || DEFAULT_LANES;
+} //Creating elements
+
+
+function createTaskElement(task) {
+  var element = document.createElement("div");
+  element.id = task.id;
+  element.innerText = task.text;
+  element.classList.add("task");
+  element.dataset.draggable = true;
+  return element;
+}
+
+function renderLanes(lanes, position) {
+  //delete old ones
+  removeLanesFromPage(); //render new ones
+
+  Object.entries(lanes).forEach(function (lane) {
+    var template = document.querySelector("[data-lane-template]");
+    var templateClone = template.content.cloneNode(true);
+    var laneId = templateClone.querySelector("[data-lane-id]");
+    laneId.dataset.laneId = lane[0];
+    var header = templateClone.querySelector(".header");
+    header.innerText = lane[0];
+    container.insertBefore(templateClone, position);
+  });
+}
+
+function renderTasks(lanes) {
+  Object.entries(lanes).forEach(function (obj) {
+    var laneId = obj[0];
+    var tasks = obj[1];
+    var lane = document.querySelector("[data-lane-id=\"".concat(laneId, "\"]"));
+    tasks.forEach(function (task) {
+      var taskElement = createTaskElement(task);
+      lane.append(taskElement);
+    });
+  });
+} //Removing elements
+
+
+function removeItemFromLane(task, taskLane) {
+  Object.entries(lanes).forEach(function (lane) {
+    if (lane[0] === taskLane) {
+      lane[1].forEach(function (t) {
+        if (t.id === task.id) {
+          lane[1].splice(lane.indexOf(t), 1);
+          saveLanes(lanes);
+        }
+      });
+    }
+  });
+}
+
+function removeLanesFromPage() {
+  var laneElements = Array.from(document.querySelectorAll(".lane"));
+  laneElements.forEach(function (lane) {
+    lane.remove();
+  });
+}
+},{"uuid":"node_modules/uuid/dist/esm-browser/index.js"}],"dragAndDrop.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = setup;
+exports.getDropZone = getDropZone;
+
+var _utils = require("./utils/utils");
+
+function setup(onDragComplete) {
+  (0, _utils.globalEventListener)("mousedown", "[data-draggable]", function (e) {
+    var selectedItem = e.target;
+    var itemClone = selectedItem.cloneNode(true);
+    var ghost = selectedItem.cloneNode();
+    var offset = setupDragItems(selectedItem, itemClone, ghost, e);
+    positionClone(itemClone, e, offset);
+    setupDragEvents(itemClone, selectedItem, ghost, offset, onDragComplete);
+  });
+}
+
+function setupDragItems(selectedItem, itemClone, ghost, e, onDragComplete) {
+  var originalRect = selectedItem.getBoundingClientRect();
+  var offset = {
+    x: e.clientX - originalRect.left,
+    y: e.clientY - originalRect.top
+  };
+  selectedItem.classList.add("hide");
+  itemClone.style.width = "".concat(originalRect.width, "px");
+  itemClone.classList.add("dragging");
+  document.body.append(itemClone);
+  ghost.classList.add("ghost");
+  ghost.innerHTML = "";
+  ghost.style.height = "".concat(originalRect.height, "px");
+  selectedItem.parentElement.insertBefore(ghost, selectedItem);
+  return offset;
+}
+
+function setupDragEvents(itemClone, selectedItem, ghost, offset, onDragComplete) {
+  var mouseMovedFunction = function mouseMovedFunction(e) {
+    var dropZone = getDropZone(e.target);
+    positionClone(itemClone, e, offset);
+    if (dropZone == null) return;
+    var closestChild = Array.from(dropZone.children).find(function (child) {
+      var rect = child.getBoundingClientRect();
+      return e.clientY < rect.top + rect.height / 2; //if the mouse's vertical pos is higher than the middle of the task
+    });
+
+    if (closestChild != null) {
+      dropZone.insertBefore(ghost, closestChild); //inserts ghost before the closest child
+    } else {
+      dropZone.append(ghost);
+    }
+  };
+
+  document.addEventListener("mousemove", mouseMovedFunction);
+  document.addEventListener("mouseup", function () {
+    document.removeEventListener("mousemove", mouseMovedFunction);
+    var dropZone = getDropZone(ghost);
+
+    if (dropZone) {
+      onDragComplete({
+        startZone: getDropZone(selectedItem),
+        endZone: dropZone,
+        dragElement: selectedItem,
+        index: Array.from(dropZone.children).indexOf(ghost)
+      });
+      dropZone.insertBefore(selectedItem, ghost);
+    }
+
+    stopDrag(itemClone, selectedItem, ghost);
+  }, {
+    once: true
+  });
+}
+
+function stopDrag(itemClone, selectedItem, ghost) {
+  itemClone.remove();
+  selectedItem.classList.remove("hide");
+  ghost.remove();
+}
+
+function positionClone(itemClone, mousePosition, offset) {
+  itemClone.style.top = "".concat(mousePosition.clientY - offset.y, "px");
+  itemClone.style.left = "".concat(mousePosition.clientX - offset.x, "px");
+}
+
+function getDropZone(element) {
+  if (element.matches("[data-trash]")) {
+    return element;
+  } else if (element.matches("[data-drop-zone]")) {
+    return element;
+  } else {
+    return element.closest("[data-drop-zone]");
+  }
+} //The dropzone of the the selected element only changes when you move it to a new drop zone
+//while you are moving an element around with your mouse the dropzone still remains the same until you
+//release the mouse because it has not been moved from its original position in the html until the
+//dropZone.insertBefore(selectedItem, ghost); function runs
+},{"./utils/utils":"utils/utils.js"}],"script.js":[function(require,module,exports) {
 "use strict";
 
 var _dragAndDrop = _interopRequireWildcard(require("./dragAndDrop"));
 
 var _uuid = require("uuid");
 
-var _utils = require("./utils.js");
+var _utils = require("./utils/utils");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-//Setting up the drag and drop
+var addBtn = document.querySelector("[data-add-new-lane]");
+var lanes = (0, _utils.loadLanes)();
+var downloadBtn = document.querySelector("[data-download]");
+var dataInput = document.getElementById("import-input");
 (0, _dragAndDrop.default)(onDragComplete);
-(0, _utils.globalEventListener)("submit", "[data-task-form]", function (e) {
-  e.preventDefault();
-  var taskInput = e.target.querySelector("[data-task-input]");
-  var taskText = taskInput.value;
-  if (taskText === "") return;
-  var task = {
-    id: (0, _uuid.v4)(),
-    text: taskText
-  };
-  var laneElement = e.target.closest(".lane").querySelector("[data-lane-id]");
-  lanes[laneElement.dataset.laneId].push(task);
-  var taskElement = createTaskElement(task); //laneElement.append(taskElement);
-
-  taskInput.value = "";
-  saveLanes(lanes);
-  resetLanes();
-  renderLanes(lanes);
-  renderTasks(lanes);
-});
+(0, _utils.renderLanes)(lanes, addBtn);
+(0, _utils.renderTasks)(lanes);
 
 function onDragComplete(e) {
   var startLaneId = e.startZone.dataset.laneId;
@@ -1117,56 +1204,26 @@ function onDragComplete(e) {
 
   startLaneTasks.splice(startLaneTasks.indexOf(task), 1);
   endLaneTasks.splice(e.index, 0, task);
-  saveLanes(lanes);
-} //setting up lanes and saving the tasks
+  (0, _utils.saveLanes)(lanes);
+} //Adding a new task
 
 
-var storagePrefix = "TRELLO_CLONE";
-var LANES_STORAGE_KEY = "".concat(storagePrefix, "-lanes");
-var DEFAULT_LANES = {
-  backlog: [],
-  doing: [{
+(0, _utils.globalEventListener)("submit", "[data-task-form]", function (e) {
+  e.preventDefault();
+  var taskInput = e.target.querySelector("[data-task-input]");
+  var taskText = taskInput.value;
+  if (taskText === "") return;
+  var task = {
     id: (0, _uuid.v4)(),
-    text: "Create your first task"
-  }],
-  done: []
-};
-var container = document.querySelector("[data-lane-container]");
-var addBtn = document.querySelector("[data-add-new-lane]");
-var lanes = loadLanes();
-renderLanes(lanes);
-renderTasks(lanes);
-
-function loadLanes() {
-  var lanesJson = localStorage.getItem(LANES_STORAGE_KEY);
-  return JSON.parse(lanesJson) || DEFAULT_LANES;
-}
-
-function saveLanes(lanes) {
-  localStorage.setItem(LANES_STORAGE_KEY, typeof lanes === "string" ? lanes : JSON.stringify(lanes));
-}
-
-function renderTasks(lanes) {
-  Object.entries(lanes).forEach(function (obj) {
-    var laneId = obj[0];
-    var tasks = obj[1];
-    var lane = document.querySelector("[data-lane-id=\"".concat(laneId, "\"]"));
-    tasks.forEach(function (task) {
-      var taskElement = createTaskElement(task);
-      lane.append(taskElement);
-    });
-  });
-}
-
-function createTaskElement(task) {
-  var element = document.createElement("div");
-  element.id = task.id;
-  element.innerText = task.text;
-  element.classList.add("task");
-  element.dataset.draggable = true;
-  return element;
-} //makes trash can bobble when you drag a task over it
-
+    text: taskText
+  };
+  var laneElement = e.target.closest(".lane").querySelector("[data-lane-id]");
+  lanes[laneElement.dataset.laneId].push(task);
+  taskInput.value = "";
+  (0, _utils.saveLanes)(lanes);
+  (0, _utils.renderLanes)(lanes, addBtn);
+  (0, _utils.renderTasks)(lanes);
+}); //For deleting task via trash can
 
 (0, _utils.globalEventListener)("mousedown", "[data-draggable]", function (e) {
   var task = e.target;
@@ -1182,7 +1239,7 @@ function createTaskElement(task) {
     });
     trash.addEventListener("mouseup", function () {
       task.remove();
-      removeItemFromLane(task, originalLane.dataset.laneId);
+      (0, _utils.removeItemFromLane)(task, originalLane.dataset.laneId);
       trash.removeEventListener("mouseover", hoverEffect);
       trash.classList.remove("onhover");
     }, {
@@ -1193,35 +1250,12 @@ function createTaskElement(task) {
   document.addEventListener("mousemove", function () {
     trash.addEventListener("mouseover", hoverEffect);
   });
-});
+}); //Dowloading JSON data
 
-function removeItemFromLane(task, taskLane) {
-  Object.entries(lanes).forEach(function (lane) {
-    if (lane[0] === taskLane) {
-      lane[1].forEach(function (t) {
-        if (t.id === task.id) {
-          lane[1].splice(lane.indexOf(t), 1);
-          saveLanes(lanes);
-        }
-      });
-    }
-  });
-}
+downloadBtn.addEventListener("click", function () {
+  (0, _utils.downloadData)(_utils.LANES_STORAGE_KEY);
+}); //Uploading user data to the app
 
-var downloadBtn = document.querySelector("[data-download]");
-downloadBtn.addEventListener("click", downloadData);
-
-function downloadData() {
-  var dataStr = localStorage.getItem(LANES_STORAGE_KEY);
-  var dataUri = "data:application/json;charset=utf-8, ".concat(encodeURIComponent(dataStr));
-  var exportFileDefaultName = "data.json";
-  var linkElement = document.createElement("a");
-  linkElement.setAttribute("href", dataUri);
-  linkElement.setAttribute("download", exportFileDefaultName);
-  linkElement.click();
-}
-
-var dataInput = document.getElementById("import-input");
 dataInput.addEventListener("change", readUserData);
 
 function readUserData(e) {
@@ -1232,54 +1266,25 @@ function readUserData(e) {
 
   reader.onload = function () {
     //when that's done....edit lanes
-    saveLanes(reader.result); //saving to local storage
+    (0, _utils.saveLanes)(reader.result, _utils.LANES_STORAGE_KEY); //saving to local storage
 
-    var lanes = loadLanes(); //setting the lanes based on local storage
-
-    removePreviousTasks(); //removes old tasks
-
-    renderTasks(lanes); //rerenders using new tasks
+    (0, _utils.renderLanes)(JSON.parse(reader.result), addBtn);
+    (0, _utils.renderTasks)(JSON.parse(reader.result)); //rerenders using new tasks
   };
-}
-
-function removePreviousTasks() {
-  var lanes = Array.from(document.querySelectorAll("[data-lane-id]"));
-  lanes.forEach(function (lane) {
-    lane.innerHTML = "";
-  });
-} //3. add a button that allows a user to create new lanes and drag the tasks between each laanes
+} //Adding new lane
 
 
 addBtn.addEventListener("submit", function (e) {
   e.preventDefault();
   var inputField = addBtn.querySelector("#user-lane");
   var laneName = inputField.value;
+  lanes = (0, _utils.loadLanes)();
   lanes[laneName] = [];
-  saveLanes(lanes);
-  resetLanes();
-  renderLanes(lanes);
-  renderTasks(lanes);
+  (0, _utils.saveLanes)(lanes);
+  (0, _utils.renderLanes)(lanes, addBtn);
+  (0, _utils.renderTasks)(lanes);
   inputField.value = "";
-});
-
-function resetLanes() {
-  var laneElements = Array.from(document.querySelectorAll(".lane"));
-  laneElements.forEach(function (lane) {
-    lane.remove();
-  });
-}
-
-function renderLanes(lanes) {
-  Object.entries(lanes).forEach(function (lane) {
-    var template = document.querySelector("[data-lane-template]");
-    var templateClone = template.content.cloneNode(true);
-    var laneId = templateClone.querySelector("[data-lane-id]");
-    laneId.dataset.laneId = lane[0];
-    var header = templateClone.querySelector(".header");
-    header.innerText = lane[0];
-    container.insertBefore(templateClone, addBtn);
-  });
-}
+}); //Removing lane
 
 (0, _utils.globalEventListener)("click", "[data-delete-lane]", function (e) {
   var lane = e.target.closest(".lane");
@@ -1288,12 +1293,11 @@ function renderLanes(lanes) {
   Object.entries(lanes).forEach(function (lane) {
     if (lane[0] === id) {
       delete lanes[lane[0]];
-      saveLanes(lanes);
+      (0, _utils.saveLanes)(lanes);
     }
   });
-}); //if the user uploads JSON data, use that to replace whats in local storage
-//save what the user uploads so it persists
-},{"./dragAndDrop":"dragAndDrop.js","uuid":"node_modules/uuid/dist/esm-browser/index.js","./utils.js":"utils.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+});
+},{"./dragAndDrop":"dragAndDrop.js","uuid":"node_modules/uuid/dist/esm-browser/index.js","./utils/utils":"utils/utils.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -1321,7 +1325,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52636" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57501" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
