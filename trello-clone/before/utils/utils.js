@@ -12,23 +12,18 @@ const storagePrefix = "TRELLO_CLONE";
 export const LANES_STORAGE_KEY = `${storagePrefix}-lanes`;
 
 const DEFAULT_LANES = {
-  backlog: [],
-  doing: [{ id: uuidV4(), text: "Create your first task" }],
-  done: [],
+  Backlog: [],
+  Doing: [{ id: uuidV4(), text: "Create your first task" }],
+  Done: [],
 };
 
 //Handling data
 
 export function downloadData(data) {
-  const dataStr = localStorage.getItem(data);
-  let dataUri = `data:application/json;charset=utf-8, ${encodeURIComponent(
-    dataStr
-  )}`;
-  let exportFileDefaultName = "data.json";
-
-  let linkElement = document.createElement("a");
-  linkElement.setAttribute("href", dataUri);
-  linkElement.setAttribute("download", exportFileDefaultName);
+  const newBlob = new Blob([data]);
+  const linkElement = document.createElement("a");
+  linkElement.setAttribute("href", URL.createObjectURL(newBlob));
+  linkElement.setAttribute("download", "data.json");
   linkElement.click();
 }
 
@@ -85,7 +80,7 @@ export function renderTasks(lanes) {
 
 //Removing elements
 
-export function removeItemFromLane(task, taskLane) {
+export function removeItemFromLane(task, taskLane, lanes) {
   Object.entries(lanes).forEach((lane) => {
     if (lane[0] === taskLane) {
       lane[1].forEach((t) => {

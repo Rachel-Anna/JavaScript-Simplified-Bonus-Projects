@@ -987,21 +987,19 @@ var storagePrefix = "TRELLO_CLONE";
 var LANES_STORAGE_KEY = "".concat(storagePrefix, "-lanes");
 exports.LANES_STORAGE_KEY = LANES_STORAGE_KEY;
 var DEFAULT_LANES = {
-  backlog: [],
-  doing: [{
+  Backlog: [],
+  Doing: [{
     id: (0, _uuid.v4)(),
     text: "Create your first task"
   }],
-  done: []
+  Done: []
 }; //Handling data
 
 function downloadData(data) {
-  var dataStr = localStorage.getItem(data);
-  var dataUri = "data:application/json;charset=utf-8, ".concat(encodeURIComponent(dataStr));
-  var exportFileDefaultName = "data.json";
+  var newBlob = new Blob([data]);
   var linkElement = document.createElement("a");
-  linkElement.setAttribute("href", dataUri);
-  linkElement.setAttribute("download", exportFileDefaultName);
+  linkElement.setAttribute("href", URL.createObjectURL(newBlob));
+  linkElement.setAttribute("download", "data.json");
   linkElement.click();
 }
 
@@ -1052,7 +1050,7 @@ function renderTasks(lanes) {
 } //Removing elements
 
 
-function removeItemFromLane(task, taskLane) {
+function removeItemFromLane(task, taskLane, lanes) {
   Object.entries(lanes).forEach(function (lane) {
     if (lane[0] === taskLane) {
       lane[1].forEach(function (t) {
@@ -1239,7 +1237,7 @@ function onDragComplete(e) {
     });
     trash.addEventListener("mouseup", function () {
       task.remove();
-      (0, _utils.removeItemFromLane)(task, originalLane.dataset.laneId);
+      (0, _utils.removeItemFromLane)(task, originalLane.dataset.laneId, lanes);
       trash.removeEventListener("mouseover", hoverEffect);
       trash.classList.remove("onhover");
     }, {
@@ -1253,7 +1251,7 @@ function onDragComplete(e) {
 }); //Dowloading JSON data
 
 downloadBtn.addEventListener("click", function () {
-  (0, _utils.downloadData)(_utils.LANES_STORAGE_KEY);
+  (0, _utils.downloadData)(localStorage.getItem(_utils.LANES_STORAGE_KEY));
 }); //Uploading user data to the app
 
 dataInput.addEventListener("change", readUserData);
@@ -1325,7 +1323,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57501" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49895" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

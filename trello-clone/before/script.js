@@ -5,7 +5,6 @@ import {
   LANES_STORAGE_KEY,
   globalEventListener,
   downloadData,
-  createTaskElement,
   saveLanes,
   loadLanes,
   removeItemFromLane,
@@ -68,7 +67,7 @@ globalEventListener("mousedown", "[data-draggable]", (e) => {
       "mouseup",
       () => {
         task.remove();
-        removeItemFromLane(task, originalLane.dataset.laneId);
+        removeItemFromLane(task, originalLane.dataset.laneId, lanes);
         trash.removeEventListener("mouseover", hoverEffect);
         trash.classList.remove("onhover");
       },
@@ -83,7 +82,7 @@ globalEventListener("mousedown", "[data-draggable]", (e) => {
 
 //Dowloading JSON data
 downloadBtn.addEventListener("click", () => {
-  downloadData(LANES_STORAGE_KEY);
+  downloadData(localStorage.getItem(LANES_STORAGE_KEY));
 });
 
 //Uploading user data to the app
